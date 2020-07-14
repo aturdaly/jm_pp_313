@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>User Page!</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <b class="text-white"><span th:text="${userInfo.name}"></span></b>
+                <a class="text-white">with roles:</a>
+                <a class="text-white">
+                    <span th:each="role : ${userInfo.roles}">
+                        <span th:text="${role.role}"></span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 p-0 mt-2">
+            <ul class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin">
+                        <div sec:authorize="hasRole('ROLE_ADMIN')">
+                            Admin
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" id="v-pills-user-tab" data-toggle="pill" href="#v-pills-user" role="tab"
+                       aria-controls="v-pills-user" aria-selected="false">
+                        <div sec:authorize="hasRole('ROLE_USER')">
+                            User
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-10 bg-light">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-user" role="tabpanel" aria-labelledby="v-pills-user-tab">
+                    <div sec:authorize="hasRole('ROLE_USER')">
+                        <h1 class="h1"><b>User information-page</b></h1>
+                        <div class="card">
+                            <h5 class="card-header"><b>About user</b></h5>
+                            <div class="card-body">
+                                <div class="container-fluid">
+                                    <table id="userInfoTable" class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Age</th>
+                                            <th scope="col">Roles</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            url: "user/api/info/",
+            dataType: 'json',
+            success: [function (userDto) {
+                let infoRow = '<tr>' +
+                    '<td>' + userDto.id + '</td>' +
+                    '<td>' + userDto.name + '</td>' +
+                    '<td>' + userDto.age + '</td>' +
+                    '<td>' + userDto.roles + '</td>' +
+                    '</tr>';
+                $('#userInfoTable tbody').append(infoRow);
+            }]
+        });
+    });
+</script>
+
+</body>
+</html>

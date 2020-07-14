@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Admin Page!</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <b class="text-white"><span th:text="${userInfo.name}"></span></b>
+                <a class="text-white">with roles:</a>
+                <a class="text-white">
+                    <span th:each="role : ${userInfo.roles}">
+                        <span th:text="${role.role}"></span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 p-0 mt-2">
+            <ul class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <li class="nav-item">
+                    <a class="nav-link active" id="v-pills-admin-tab" data-toggle="pill" href="#v-pills-admin" role="tab"
+                       aria-controls="v-pills-admin" aria-selected="true">
+                        <div sec:authorize="hasRole('ROLE_ADMIN')">
+                            Admin
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user">
+                        <div sec:authorize="hasRole('ROLE_USER')">
+                            User
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-10 bg-light">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-admin" role="tabpanel" aria-labelledby="v-pills-admin-tab">
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <h1 class="h1"><b>Admin panel</b></h1>
+                        <ul class="nav nav-tabs mt-3" id="adminTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="allUsers-tab" data-toggle="tab" href="#usersList"
+                                   role="tab" aria-controls="usersList" aria-selected="true">Users table</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="newUser-tab" data-toggle="tab" href="#newUser" role="tab"
+                                   aria-controls="newUser" aria-selected="false">New User</a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="adminTabsContent">
+                            <div class="tab-pane fade show active" id="usersList" role="tabpanel" aria-labelledby="allUsers-tab">
+                                <div class="card">
+                                    <h5 class="card-header"><b>All users</b></h5>
+                                    <div class="card-body">
+                                        <div class="container-fluid">
+                                            <table id="allUserTable" class="table table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">ID</th>
+                                                    <th scope="col">Name</th>
+                                                    <th scope="col">Age</th>
+                                                    <th scope="col">Roles</th>
+                                                    <th scope="col">Edit</th>
+                                                    <th scope="col">Delete</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="newUser" role="tabpanel" aria-labelledby="newUser-tab">
+                                <div class="card">
+                                    <h5 class="card-header"><b>Add new user</b></h5>
+                                    <div class="card-body text-center">
+                                        <form id="addUserForm" class="container w-25">
+                                            <div class="form-group">
+                                                <label for="name"><b>Name</b></label>
+                                                <input id="name" type="text" class="form-control" placeholder="Name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="password"><b>Password</b></label>
+                                                <input id="password" type="password" class="form-control" placeholder="Password">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="age"><b>Age</b></label>
+                                                <input id="age" type="number" class="form-control" placeholder="Age">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="roles"><b>Roles</b></label>
+                                                <select multiple class="form-control" id="roles">
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-success">Add new user</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="form">
+        <div class="modal-content">
+            <form id="updateForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Edit user</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="form-group">
+                        <label for="UpdId"><b>ID</b></label>
+                        <input type="text" class="form-control" id="UpdId" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="UpdName"><b>Name</b></label>
+                        <input type="text" class="form-control" id="UpdName" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="UpdPsw"><b>Password</b></label>
+                        <input type="password" class="form-control" id="UpdPsw" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                        <label for="UpdAge"><b>Age</b></label>
+                        <input type="number" class="form-control" id="UpdAge" placeholder="Age">
+                    </div>
+                    <div class="form-group">
+                        <label for="UpdRoles"><b>Roles</b></label>
+                        <select multiple class="form-control" id="UpdRoles">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="UpdBtn" data-dismiss="modal">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="form">
+        <div class="modal-content">
+            <form id="deleteForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete user</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="form-group">
+                        <label for="DelId"><b>Id</b></label>
+                        <input type="text" class="form-control" id="DelId" placeholder="Id" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="DelName"><b>Name</b></label>
+                        <input type="text" class="form-control" id="DelName" placeholder="Name" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="DelAge"><b>Age</b></label>
+                        <input type="number" class="form-control" id="DelAge" placeholder="Age" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="DelRoles"><b>Roles</b></label>
+                        <textarea class="form-control" id="DelRoles" disabled>
+                        </textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="DelBtn" data-dismiss="modal">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            url: "admin/api/users/",
+            dataType: 'json',
+            success: [function (allUsers) {
+                $.each(allUsers, function (i, userDto) {
+                    let userRow = '<tr>' +
+                        '<td>' + userDto.id + '</td>' +
+                        '<td>' + userDto.name + '</td>' +
+                        '<td>' + userDto.age + '</td>' +
+                        '<td>' + userDto.roles + '</td>' +
+                        '<td> <button type="button" class="btn btn-info" data-id="' + userDto.id + '" data-toggle="modal" data-target="#updateModal" > Edit </button> </td>' +
+                        '<td> <button type="button" class="btn btn-danger" data-id="' + userDto.id + '" data-toggle="modal" data-target="#deleteModal" > Delete </button> </td>' +
+                        '</tr>';
+                    $('#allUserTable tbody').append(userRow);
+                })
+            }]
+        });
+        $.ajax({
+            type: "GET",
+            url: "admin/api/roles/",
+            dataType: 'json',
+            success: [function (allRoles) {
+                $.each(allRoles, function (i, roleDto) {
+                    let roleRow = '<option value="' + roleDto.role + '">' + roleDto.role + '</option>';
+                    $('#roles').append(roleRow);
+                })
+            }]
+        });
+    });
+</script>
+
+<script>
+    $('#allUsers-tab').on('shown.bs.tab', function (e) {
+        $('#allUserTable tbody tr').remove();
+        $.ajax({
+            type: "GET",
+            url: "admin/api/users/",
+            dataType: 'json',
+            success: [function (allUsers) {
+                $.each(allUsers, function (i, userDto) {
+                    let userRow = '<tr>' +
+                        '<td>' + userDto.id + '</td>' +
+                        '<td>' + userDto.name + '</td>' +
+                        '<td>' + userDto.age + '</td>' +
+                        '<td>' + userDto.roles + '</td>' +
+                        '<td> <button type="button" class="btn btn-info" data-id="' + userDto.id + '" data-toggle="modal" data-target="#updateModal" > Edit </button> </td>' +
+                        '<td> <button type="button" class="btn btn-danger" data-id="' + userDto.id + '" data-toggle="modal" data-target="#deleteModal" > Delete </button> </td>' +
+                        '</tr>';
+                    $('#allUserTable tbody').append(userRow);
+                })
+            }]
+        });
+    })
+</script>
+
+<script>
+    $('#addUserForm').submit(function (e) {
+        e.preventDefault();
+        let name = $('#name').val();
+        let password = $('#password').val();
+        let age = $('#age').val();
+        let roles = $('#roles').val();
+        $.ajax({
+            url: "admin/api/users/",
+            type: "POST",
+            contentType: "application/json",
+            dataType: 'json',
+            data: JSON.stringify({
+                'name': name, 'password': password, 'age': age, 'roles': roles
+            }),
+            complete: [function (){
+                $('#addUserForm')[0].reset();
+                $('#allUserTable tbody tr').remove();
+                $('#allUsers-tab').removeClass('active');
+                $('.nav-tabs li:first-child a').tab('show')
+            }]
+        });
+    });
+</script>
+
+
+<script>
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        let button = $(event.relatedTarget);
+        let id = button.data('id');
+        $.ajax({
+            type: "GET",
+            url: "admin/api/users/" + id,
+            dataType: 'json',
+            success: [function (userDto) {
+                $('.modal-body #DelId').val(userDto.id);
+                $('.modal-body #DelName').val(userDto.name);
+                $('.modal-body #DelAge').val(userDto.age);
+                $('.modal-body #DelRoles').val(userDto.roles);
+            }]
+        });
+    });
+    $('#DelBtn').on('click', function (e) {
+        let id = $('#DelId').val();
+        $.ajax({
+            type: "DELETE",
+            url: "/admin/api/users/" + id,
+            contentType: "application/json",
+            success: [function () {
+                $('#allUserTable tbody tr').remove();
+                $('#allUsers-tab').removeClass('active');
+                $('.nav-tabs li:first-child a').tab('show')
+            }]
+        });
+    });
+</script>
+
+<script>
+    $('#updateModal').on('show.bs.modal', function (event) {
+        $('#UpdRoles option').remove();
+        let button = $(event.relatedTarget);
+        let id = button.data('id');
+        $.ajax({
+            type: "GET",
+            url: "admin/api/users/" + id,
+            dataType: 'json',
+            success: [function (userDto) {
+                $('.modal-body #UpdId').val(userDto.id);
+                $('.modal-body #UpdName').val(userDto.name);
+                $('.modal-body #UpdPsw').val(userDto.password);
+                $('.modal-body #UpdAge').val(userDto.age);
+            }]
+        });
+        $.ajax({
+            type: "GET",
+            url: "admin/api/roles/",
+            dataType: 'json',
+            success: [function (allRoles) {
+                $.each(allRoles, function (i, roleDto) {
+                    let roleRow = '<option value="' + roleDto.role + '">' + roleDto.role + '</option>';
+                    $('#UpdRoles').append(roleRow);
+                })
+            }]
+        });
+    });
+    $('#UpdBtn').on('click', function (e) {
+        let id = $('#UpdId').val();
+        let name = $('#UpdName').val();
+        let password = $('#UpdPsw').val();
+        let age = $('#UpdAge').val();
+        let roles = $('#UpdRoles').val();
+        $.ajax({
+            type: "PUT",
+            url: "/admin/api/users/" + id,
+            contentType: "application/json",
+            dataType: 'json',
+            data: JSON.stringify({
+                'id': id, 'name': name, 'password': password, 'age': age, 'roles': roles
+            }),
+            complete: [function () {
+                $('#allUserTable tbody tr').remove();
+                $('#allUsers-tab').removeClass('active');
+                $('.nav-tabs li:first-child a').tab('show')
+            }]
+        });
+    });
+</script>
+
+
+</body>
+</html>
